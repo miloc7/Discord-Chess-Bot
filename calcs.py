@@ -111,8 +111,8 @@ async def score(username,target_rating,variant,model_params,testing=False):
         predicted_date = await get_predicted_date(predictor_values,model_params)
         if predictor_values['rating_updates_pre_30'] == 0 or predictor_values['rating_updates_30'] == 0 or predictor_values['rating_updates_180'] < 5:
             return(True,f"Warning: results may be unreliable due to limited {variant} data for user {username}.",
-                    prob_success,predicted_date)
-        return(False,None,prob_success,predicted_date)
+                    prob_success,predicted_date, str(predictor_values['rating_latest']))
+        return(False,None,prob_success,predicted_date, str(predictor_values['rating_latest']))
 
 # Check if discord inputs are valid, and if so return the predictions
 async def process_inputs(name, rating, variant='Rapid',testing=False):
@@ -121,8 +121,8 @@ async def process_inputs(name, rating, variant='Rapid',testing=False):
         return(True,"Error: rating must be a positive integer between 500 and 3200.",None,None)
     # Check that variant is valid
     elif variant.title() in ['Bullet','Blitz','Rapid','Classical']:
-        error_bool,error,prob_success,predicted_date = await score(username = name, target_rating = int(rating),
-          variant = variant.capitalize(), model_params = model_params,testing=testing)
-        return(error_bool,error,prob_success,predicted_date)
+        error_bool,error,prob_success,predicted_date,current_rating = await score(username = name,
+        target_rating = int(rating), variant = variant.capitalize(), model_params = model_params,testing=testing)
+        return(error_bool,error,prob_success,predicted_date,current_rating)
     else:
         return(True,"Error: variant not supported. Try bullet, blitz, rapid, or classical.",None,None)
